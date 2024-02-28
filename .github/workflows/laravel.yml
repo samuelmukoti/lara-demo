@@ -23,7 +23,7 @@ jobs:
       - name: Generate .env
         run: |
           echo "APP_ENV=testing" >> .env
-          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_CONNECTION=localhost" >> .env
           echo "DB_HOST=localhost" >> .env
           echo "DB_PORT=3306" >> .env
           echo "DB_DATABASE=larademo" >> .env
@@ -45,7 +45,7 @@ jobs:
       - name: Run Unit tests
         env:
           APP_ENV: testing
-          DB_CONNECTION: mysql
+          DB_CONNECTION: localhost
           DB_USERNAME: root
           DB_PASSWORD: root
           DB_DATABASE: larademo
