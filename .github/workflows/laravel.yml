@@ -50,8 +50,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script_stop: true
           script: |
-            cd apps
-            cd laravel-example
+            cd /home4/melivje1/cdx.melivo.us
             git pull
             npm ci
             npm run prod
