@@ -16,19 +16,19 @@ jobs:
           node-version: 20
       - uses: mirromutth/mysql-action@v1.1
         with:
-          mysql database: ${{ secrets.MYSQL_DATABASE }}
-          mysql user: ${{ secrets.MYSQL_USER }}
-          mysql password: ${{ secrets.MYSQL_PASSWORD }}
+          mysql database: lara-demo
+          mysql user: root
+          mysql password: root
       # Geneate .env with Github secrets
       - name: Generate .env
         run: |
           echo "APP_ENV=testing" >> .env
           echo "DB_CONNECTION=mysql" >> .env
-          echo "DB_HOST=${{ secrets.MYSQL_HOST }}" >> .env
+          echo "DB_HOST=localhost" >> .env
           echo "DB_PORT=3306" >> .env
-          echo "DB_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
-          echo "DB_USERNAME=${{ secrets.MYSQL_USER }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+          echo "DB_DATABASE=lara-demo" >> .env
+          echo "DB_USERNAME=root" >> .env
+          echo "DB_PASSWORD=root" >> .env
 
       - name: Install composer Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
@@ -46,9 +46,9 @@ jobs:
         env:
           APP_ENV: testing
           DB_CONNECTION: mysql
-          DB_USERNAME: ${{ secrets.MYSQL_USER }}
-          DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          DB_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          DB_USERNAME: root
+          DB_PASSWORD: root
+          DB_DATABASE: lara-demo
         run: php artisan test
       - name: Archive Built Project artifacts
         run: tar -czf project.tar.gz .
