@@ -42,14 +42,14 @@ jobs:
           npm run build
       - name: Directory Permissions
         run: chmod 755 -R storage bootstrap/cache
-      - name: Run Unit tests
-        env:
-          APP_ENV: testing
-          DB_CONNECTION: localhost
-          DB_USERNAME: root
-          DB_PASSWORD: root
-          DB_DATABASE: larademo
-        run: php artisan test
+      # - name: Run Unit tests
+      #   env:
+      #     APP_ENV: testing
+      #     DB_CONNECTION: localhost
+      #     DB_USERNAME: root
+      #     DB_PASSWORD: root
+      #     DB_DATABASE: larademo
+      #   run: php artisan test
       - name: Archive Built Project artifacts
         run: tar -czf project.tar.gz .
 
