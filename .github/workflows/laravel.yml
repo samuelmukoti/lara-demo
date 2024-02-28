@@ -12,15 +12,24 @@ jobs:
           php-version: '8.2'
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
-        with: 
+        with:
           node-version: 20
       - uses: mirromutth/mysql-action@v1.1
         with:
-          mysql database: laravel-test-db
-          mysql user: laravel_test_user
-          mysql password: example
-      - name: Copy .env
-        run: cp .env.example .env
+          mysql database: ${{ secrets.MYSQL_DATABASE }}
+          mysql user: ${{ secrets.MYSQL_USER }}
+          mysql password: ${{ secrets.MYSQL_PASSWORD }}
+      # Geneate .env with Github secrets
+      - name: Generate .env
+        run: |
+          echo "APP_ENV=testing" >> .env
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=${{ secrets.MYSQL_HOST }}" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
+          echo "DB_USERNAME=${{ secrets.MYSQL_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+
       - name: Install composer Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Install node dependencies
@@ -37,10 +46,21 @@ jobs:
         env:
           APP_ENV: testing
           DB_CONNECTION: mysql
-          DB_USERNAME: laravel_test_user
-          DB_PASSWORD: super_secret
-          DB_DATABASE: laravel_test_db
+          DB_USERNAME: ${{ secrets.MYSQL_USER }}
+          DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          DB_DATABASE: ${{ secrets.MYSQL_DATABASE }}
         run: php artisan test
+      - name: Archive Built Project artifacts
+        run: tar -czf project.tar.gz .
+
+      - name: Transfer Archive to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "project.tar.gz"
+          target: ${{ secrets.SSH_PROJECT_PATH }}
       - name: Deploy to Server
         if: ${{ success() }}
         uses: appleboy/ssh-action@master
@@ -50,9 +70,26 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script_stop: true
           script: |
-            cd /home4/melivje1/cdx.melivo.us
-            git pull
-            npm ci
-            npm run prod
-            composer i
-            php artisan migrate --force
+            cd ${{ secrets.SSH_PROJECT_PATH }}
+            tar -xzf project.tar.gz
+            rm project.tar.gz
+            # Update file permissions if necessary
+            chmod 755 -R storage bootstrap/cache
+            # Update .env file
+
+
+      # - name: Deploy to Server
+      #   if: ${{ success() }}
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.SSH_USERNAME }}
+      #     key: ${{ secrets.SSH_KEY }}
+      #     script_stop: true
+      #     script: |
+      #       cd /home4/melivje1/cdx.melivo.us
+      #       git pull
+      #       npm ci
+      #       npm run prod
+      #       composer i
+      #       php artisan migrate --force
