@@ -92,14 +92,13 @@ jobs:
       #       chmod 755 -R storage bootstrap/cache
       #       # Update .env file
       - name: Deploy to Server
-        env:
-          PROJECT_PATH: ${{ secrets.SSH_PROJECT_PATH }}
         if: ${{ success() }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
           script_stop: true
           script: |
             cd $PROJECT_PATH
