@@ -99,7 +99,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          #known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
           script_stop: true
           script: |
             cd $PROJECT_PATH
