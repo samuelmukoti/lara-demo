@@ -51,13 +51,18 @@ jobs:
         run: tar -czf project.tar.gz public
 
       - name: Transfer Archive to Server
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_PROJECT_PATH: ${{ secrets.SSH_PROJECT_PATH }}
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
+          host: $SSH_HOST
+          username: $SSH_USERNAME
+          key: $SSH_KEY
           source: "project.tar.gz"
-          target: ${{ secrets.SSH_PROJECT_PATH }}
+          target: $SSH_PROJECT_PATH
       # - name: Deploy to Server
       #   if: ${{ success() }}
       #   uses: appleboy/ssh-action@master
