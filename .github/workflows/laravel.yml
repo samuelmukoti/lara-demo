@@ -98,6 +98,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
+          port: 22
           known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
           script_stop: true
           script: |
