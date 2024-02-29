@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.1'
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:
@@ -23,13 +23,9 @@ jobs:
       - name: Generate .env
         run: |
           echo "APP_ENV=testing" >> .env
-          echo "DB_CONNECTION=localhost" >> .env
-          echo "DB_HOST=localhost" >> .env
-          echo "DB_PORT=3306" >> .env
-          echo "DB_DATABASE=larademo" >> .env
-          echo "DB_USERNAME=root" >> .env
-          echo "DB_PASSWORD=root" >> .env
-
+          echo "DB_CONNECTION=sqlite" >> .env
+          mkdir database
+          touch database/database.sqlite
       - name: Install composer Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Install node dependencies
@@ -77,6 +73,8 @@ jobs:
       #       chmod 755 -R storage bootstrap/cache
       #       # Update .env file
       - name: Deploy to Server
+        env:
+          PROJECT_PATH: ${{ secrets.SSH_PROJECT_PATH }}
         if: ${{ success() }}
         uses: appleboy/ssh-action@master
         with:
@@ -85,11 +83,13 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script_stop: true
           script: |
-            cd {{ secrets.SSH_PROJECT_PATH }}
+            cd $PROJECT_PATH
             git pull
             composer i
             tar -xzf project.tar.gz
             rm project.tar.gz
             # Update file permissions if necessary
             chmod 755 -R storage bootstrap/cache
+            # Update .env file
+            cp .env.prod .env
             php artisan migrate --force
