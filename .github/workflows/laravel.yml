@@ -54,10 +54,9 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          port: 22
           key: ${{ secrets.SSH_KEY }}
           source: "project.tar.gz"
-          target: "/home4/melivje1/cdx.melivo.net"
+          target: "/home4/melivje1/cdx.melivo.us"
 
 
       # - name: Transfer Archive to Server
