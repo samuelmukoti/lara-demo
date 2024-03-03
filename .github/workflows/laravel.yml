@@ -73,7 +73,10 @@ jobs:
       #     target: ${{ secrets.SSH_PROJECT_PATH}}
 
       - name: Deploy to Server using rsync
-        run: rsync -avz -e "ssh -p ${{ secrets.SSH_PORT }}" --progress --delete-after build.tar.gz ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PROJECT_PATH }}
+        run: |
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT }}" --progress --delete-after build.tar.gz ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PROJECT_PATH }}
 
       - name: Execute Deployment Script
         uses: appleboy/ssh-action@master
