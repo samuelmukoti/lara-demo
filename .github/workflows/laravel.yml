@@ -66,6 +66,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
           source: "build.tar.gz"
           target: ${{ github.ref == 'refs/heads/main' && secrets.STAGING_DEPLOY_PATH || secrets.PRODUCTION_DEPLOY_PATH }}
