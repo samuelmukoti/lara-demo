@@ -47,6 +47,12 @@ jobs:
       #     DB_PASSWORD: root
       #     DB_DATABASE: larademo
       #   run: php artisan test
+
+      - name: Setup SSH connection
+        uses: webfactory/ssh-agent@v0.5.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
       - name: Archive Built Project artifacts
         run: tar -czf project.tar.gz public
       - name: Copy repository contents via scp
