@@ -58,7 +58,6 @@ jobs:
           source: "project.tar.gz"
           target: "/home4/melivje1/cdx.melivo.us"
 
-
       # - name: Transfer Archive to Server
       #   env:
       #     SSH_HOST: ${{ secrets.SSH_HOST }}
