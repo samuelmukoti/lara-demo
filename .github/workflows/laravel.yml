@@ -73,11 +73,15 @@ jobs:
 
       - name: Execute Deployment Script
         uses: appleboy/ssh-action@master
+        env:
+          PROJECT_PATH: ${{ secrets.SSH_PROJECT_PATH }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          envs: PROJECT_PATH
+          script_stop: true
           script: |
             echo "${{ github.ref == 'refs/heads/main' && secrets.STAGING_DEPLOY_PATH || secrets.PRODUCTION_DEPLOY_PATH }}"
             cd {{ secrets.SSH_PROJECT_PATH }}
