@@ -69,6 +69,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
           source: "build.tar.gz"
+          use_insecure_cipher: true
           target: ${{ secrets.SSH_PROJECT_PATH}}
 
       - name: Execute Deployment Script
