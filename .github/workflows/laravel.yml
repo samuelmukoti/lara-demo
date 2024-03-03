@@ -80,9 +80,9 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             echo "${{ github.ref == 'refs/heads/main' && secrets.STAGING_DEPLOY_PATH || secrets.PRODUCTION_DEPLOY_PATH }}"
-            cd $PROJECT_PATH
+            cd {{ secrets.SSH_PROJECT_PATH }}
             git pull
-            tar -xzf build.tar.gz && rm build.tar.gz
+            tar -xvzf build.tar.gz && rm build.tar.gz
             cp .env.${{ github.ref == 'refs/heads/main' && 'staging' || 'production' }} .env
             composer install --optimize-autoloader --no-dev
             php artisan migrate --force
