@@ -69,7 +69,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
           source: "build.tar.gz"
-          target: ${{ github.ref == 'refs/heads/main' && secrets.STAGING_DEPLOY_PATH || secrets.PRODUCTION_DEPLOY_PATH }}
+          target: ${{ secrets.SSH_PROJECT_PATH}}
 
       - name: Execute Deployment Script
         uses: appleboy/ssh-action@master
