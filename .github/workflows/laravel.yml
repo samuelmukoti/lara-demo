@@ -88,7 +88,10 @@ jobs:
             cd $PROJECT_PATH
             git pull
             tar -xvzf build.tar.gz && rm build.tar.gz
-            cp ".env.$ENV_NAME" .env
+            cp .env.example .env
+            chmod +x update_envs.sh
+            ./update_envs.sh
+            cat .env
             composer install --optimize-autoloader --no-dev
             php artisan migrate --force
             # Any additional commands...
