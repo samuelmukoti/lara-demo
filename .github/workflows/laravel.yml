@@ -87,7 +87,7 @@ jobs:
             cd $PROJECT_PATH
             git pull
             tar -xvzf build.tar.gz && rm build.tar.gz
-            cp .env.${{ github.ref == 'refs/heads/main' && 'staging' || 'production' }} .env
-            composer install --optimize-autoloader --no-dev
-            php artisan migrate --force
+            #cp .env.${{ github.ref == 'refs/heads/main' && 'staging' || 'production' }} .env
+            #composer install --optimize-autoloader --no-dev
+            #php artisan migrate --force
             # Any additional commands...
