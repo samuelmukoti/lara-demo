@@ -78,7 +78,7 @@ jobs:
           chmod 600 ssh_key
           ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
           echo 'rsync -avz -e "ssh -i ssh_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PROJECT_PATH }} " --delete-after build.tar.gz ${{ secrets.SSH_PROJECT_PATH }}'
-          rsync -avz -e "ssh -i ssh_key -o StrictHostKeyChecking=no melivje1@162.241.123.59  build.tar.gz .
+          scp build.tar.gz melivje1@162.241.123.59:/home/melivje1/cdx.melivo.us/
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
 
