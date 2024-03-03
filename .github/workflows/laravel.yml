@@ -76,6 +76,7 @@ jobs:
         uses: appleboy/ssh-action@master
         env:
           PROJECT_PATH: ${{ secrets.SSH_PROJECT_PATH }}
+          ENV_NAME: ${{ github.ref == 'refs/heads/main' && 'staging' || 'production' }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
@@ -84,11 +85,10 @@ jobs:
           envs: PROJECT_PATH
           script_stop: true
           script: |
-            echo "${{ github.ref == 'refs/heads/main' && secrets.STAGING_DEPLOY_PATH || secrets.PRODUCTION_DEPLOY_PATH }}"
             cd $PROJECT_PATH
             git pull
             tar -xvzf build.tar.gz && rm build.tar.gz
-            #cp .env.${{ github.ref == 'refs/heads/main' && 'staging' || 'production' }} .env
-            #composer install --optimize-autoloader --no-dev
-            #php artisan migrate --force
+            cp ".env.$ENV_NAME" .env
+            composer install --optimize-autoloader --no-dev
+            php artisan migrate --force
             # Any additional commands...
