@@ -84,7 +84,7 @@ jobs:
           script_stop: true
           script: |
             echo "${{ github.ref == 'refs/heads/main' && secrets.STAGING_DEPLOY_PATH || secrets.PRODUCTION_DEPLOY_PATH }}"
-            cd {{ secrets.SSH_PROJECT_PATH }}
+            cd $PROJECT_PATH
             git pull
             tar -xvzf build.tar.gz && rm build.tar.gz
             cp .env.${{ github.ref == 'refs/heads/main' && 'staging' || 'production' }} .env
