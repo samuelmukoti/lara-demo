@@ -2,51 +2,56 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, production]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'staging' || 'production' }}
     steps:
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-      - uses: actions/checkout@v2
+
       - uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: '20'
+
+      # Assuming MySQL is needed for running migrations or tests
       - uses: mirromutth/mysql-action@v1.1
         with:
           mysql database: larademo
           mysql user: root
           mysql password: root
-      # Geneate .env with Github secrets
+
       - name: Generate .env
         run: |
           echo "APP_ENV=testing" >> .env
           echo "DB_CONNECTION=sqlite" >> .env
           touch database/database.sqlite
+
       - name: Update composer
         run: composer update
+
       - name: Install composer Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
       - name: Install node dependencies
         run: npm ci
+
       - name: Setup Project
         run: |
           php artisan config:clear
           php artisan cache:clear
           php artisan key:generate
           npm run build
+
       - name: Directory Permissions
         run: chmod 755 -R storage bootstrap/cache
-      # - name: Run Unit tests
-      #   env:
-      #     APP_ENV: testing
-      #     DB_CONNECTION: localhost
-      #     DB_USERNAME: root
-      #     DB_PASSWORD: root
-      #     DB_DATABASE: larademo
-      #   run: php artisan test
 
       - name: Setup SSH connection
         uses: webfactory/ssh-agent@v0.5.0
@@ -54,67 +59,28 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Archive Built Project artifacts
-        run: |
-          tar -czf project.tar.gz public
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "echo 'SSH Connection Established'"
-      - name: Copy repository contents via scp
+        run: tar -czf project.tar.gz .
+
+      - name: Deploy to Server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: "project.tar.gz"
-          target: "/home4/melivje1/cdx.melivo.us"
+          target: ${{ github.ref == 'refs/heads/main' && secrets.STAGING_DEPLOY_PATH || secrets.PRODUCTION_DEPLOY_PATH }}
 
-      # - name: Transfer Archive to Server
-      #   env:
-      #     SSH_HOST: ${{ secrets.SSH_HOST }}
-      #     SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-      #     SSH_KEY: ${{ secrets.SSH_KEY }}
-      #     SSH_PROJECT_PATH: ${{ secrets.SSH_PROJECT_PATH }}
-      #   uses: appleboy/scp-action@master
-      #   with:
-      #     host: $SSH_HOST
-      #     username: $SSH_USERNAME
-      #     key: $SSH_KEY
-      #     source: "project.tar.gz"
-      #     target: $SSH_PROJECT_PATH
-
-
-
-      # - name: Deploy to Server
-      #   if: ${{ success() }}
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.SSH_HOST }}
-      #     username: ${{ secrets.SSH_USERNAME }}
-      #     key: ${{ secrets.SSH_KEY }}
-      #     script_stop: true
-      #     script: |
-      #       cd ${{ secrets.SSH_PROJECT_PATH }}
-      #       tar -xzf project.tar.gz
-      #       rm project.tar.gz
-      #       # Update file permissions if necessary
-      #       chmod 755 -R storage bootstrap/cache
-      #       # Update .env file
-      - name: Deploy to Server
-        if: ${{ success() }}
+      - name: Execute Deployment Script
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          #known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
-          script_stop: true
           script: |
-            cd $PROJECT_PATH
-            git pull
-            composer i
-            tar -xzf project.tar.gz
-            rm project.tar.gz
-            # Update file permissions if necessary
-            chmod 755 -R storage bootstrap/cache
-            # Update .env file
-            cp .env.prod .env
+            cd ${{ github.ref == 'refs/heads/main' && secrets.STAGING_DEPLOY_PATH || secrets.PRODUCTION_DEPLOY_PATH }}
+            tar -xzf project.tar.gz && rm project.tar.gz
+            cp .env.${{ github.ref == 'refs/heads/main' && 'staging' || 'production' }} .env
+            composer install --optimize-autoloader --no-dev
             php artisan migrate --force
+            # Any additional commands...
