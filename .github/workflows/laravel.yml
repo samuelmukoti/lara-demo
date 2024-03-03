@@ -76,7 +76,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
         run: |
-          scp -i ssh_key build.tar.gz melivje1@162.241.123.59:/home/melivje1/cdx.melivo.us/
+          scp build.tar.gz melivje1@162.241.123.59:/home/melivje1/cdx.melivo.us/
           echo "Deployed to server"
 
       - name: Execute Deployment Script
